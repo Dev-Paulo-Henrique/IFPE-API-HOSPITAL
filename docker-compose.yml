@@ -1,0 +1,44 @@
+version: '3.8'
+services:
+  mysql:
+    container_name: mysql
+    restart: always
+    build:
+      context: .
+      args:
+        - MYSQL_DATABASE=${MYSQL_DATABASE}
+        - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+        - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "${MYSQL_PORT}:${MYSQL_PORT}"
+    networks:
+      - hospital
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "--silent"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+  nodejs:
+    build:
+      context: ./server
+    container_name: nodejs
+    restart: always
+    env_file: .env
+    ports:
+      - "${NODEJS_PORT}:${NODEJS_PORT}"
+    networks:
+      - hospital
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+networks:
+  hospital:
+   driver: bridge
+
+volumes:
+  mysql-data:
