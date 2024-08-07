@@ -16,6 +16,4 @@ ENV NODEJS_PORT=$NODEJS_PORT
 
 EXPOSE $NODEJS_PORT
 
-RUN chmod +x /home/node/app/start.sh
-
-CMD [ "/home/node/app/start.sh" ]
+CMD [ "npm", "start" ]
